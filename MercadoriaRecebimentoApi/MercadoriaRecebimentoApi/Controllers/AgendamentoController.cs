@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using MercadoriaRecebimentoApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -29,46 +25,88 @@ namespace MercadoriaRecebimentoApi.Controllers
         [HttpGet]
         public IEnumerable<Agendamento> Get()
         {
-            List<Agendamento> agendamentoLista;
-            try
-            {
-                if (!_cache.TryGetValue<List<Agendamento>>("AgendamentoLista", out agendamentoLista))
-                {
-                    agendamentoLista = ConfiguracaoInicial();
-                    _cache.Set("AgendamentoLista", agendamentoLista);
-                }
-            }
-            catch (Exception ex)
-            {
-                agendamentoLista = new List<Agendamento>();
-                Debug.WriteLine(ex);
-            }
-            //return new string[] { _config.GetValue<string>("EstoqueParametros:TotalDia"), _config.GetValue<string>("EstoqueParametros:TotalVagas") };
-            return agendamentoLista;
+            return _cache.Get<List<Agendamento>>("AgendamentoLista");
         }
 
         // POST api/<AgendamentoController>
         [HttpPost]
-        public void Post([FromBody] Agendamento agendamentoAdicionar)
+        public string Post([FromBody] Agendamento agendamentoAdicionar)
         {
-            Debug.WriteLine(agendamentoAdicionar);
+            return AgendamentoAdicionar(agendamentoAdicionar);
         }
 
-        private List<Agendamento> ConfiguracaoInicial()
+        private string AgendamentoAdicionar(Agendamento agendamentoAdicionar)
         {
-            List<Agendamento> agendamentoLista = new List<Agendamento>();
-            for (int agendamentoNumero = 1; agendamentoNumero <= 10; agendamentoNumero++)
+            string adicionarSituacao = "Falha";
+            List<Agendamento> agendamentoLista = _cache.Get<List<Agendamento>>("AgendamentoLista");
+            if (agendamentoLista == null)
             {
-                agendamentoLista.Add(new Agendamento
-                {
-                    AgendamentoCarreta = $"Carreta{agendamentoNumero.ToString().PadLeft(2, '0')}",
-                    AgendamentoFornecedor = $"Fornacedor{(agendamentoNumero % 5).ToString().PadLeft(2, '0')}",
-                    AgendamentoInicio = DateTime.Today.AddHours(8),
-                    AgendamentoTermino = DateTime.Today.AddHours(8),
-                    AgendamentoVaga = agendamentoNumero % 4,
-                });
+                agendamentoLista = new List<Agendamento>();
             }
-            return agendamentoLista;
+            if (agendamentoLista != null &&
+                ValidarVagaDisponivel(agendamentoLista, agendamentoAdicionar) &&
+                !ValidarVagaConflito(agendamentoLista, agendamentoAdicionar) &&
+                ValidarVagaTempoOcupacao(agendamentoAdicionar) &&
+                !ValidarVagaSimultaneo(agendamentoLista, agendamentoAdicionar) &&
+                !ValidarVagaLimite(agendamentoLista) &&
+                ValidarVagaHorario(agendamentoAdicionar)
+                )
+            {
+                agendamentoLista.Add(agendamentoAdicionar);
+                adicionarSituacao = "Sucesso";
+            }
+            _cache.Set<List<Agendamento>>("AgendamentoLista", agendamentoLista);
+            return $"Registro {agendamentoAdicionar.AgendamentoCarreta} Adicionado -- {adicionarSituacao} --";
+        }
+
+        private bool ValidarVagaDisponivel(List<Agendamento> agendamentoLista, Agendamento agendamentoAdicionar)
+        {
+            //Tratamento 1a
+            return agendamentoLista.FindAll(agendamento =>
+                agendamentoAdicionar.AgendamentoInicio > agendamento.AgendamentoInicio.AddMinutes(-30) &&
+                agendamentoAdicionar.AgendamentoInicio < agendamento.AgendamentoTermino.AddMinutes(+30)
+                ).Count <= 3;
+        }
+
+        private bool ValidarVagaConflito(List<Agendamento> agendamentoLista, Agendamento agendamentoAdicionar)
+        {
+            //Tratamento 1b, 1c
+            return agendamentoLista.FindAll(agendamento =>
+                agendamentoAdicionar.AgendamentoInicio > agendamento.AgendamentoInicio.AddMinutes(-30) &&
+                agendamentoAdicionar.AgendamentoInicio < agendamento.AgendamentoTermino.AddMinutes(+30) &&
+                agendamentoAdicionar.AgendamentoVaga == agendamento.AgendamentoVaga &&
+                agendamentoAdicionar.AgendamentoVaga > 0 &&
+                agendamentoAdicionar.AgendamentoVaga <= 3
+                ).Count > 0;
+        }
+
+        private bool ValidarVagaTempoOcupacao(Agendamento agendamentoAdicionar)
+        {
+            //Tratamento 1d
+            return (agendamentoAdicionar.AgendamentoTermino - agendamentoAdicionar.AgendamentoInicio).TotalMinutes <= 60;
+        }
+
+        private bool ValidarVagaSimultaneo(List<Agendamento> agendamentoLista, Agendamento agendamentoAdicionar)
+        {
+            //Tratamento 1e
+            return agendamentoLista.FindAll(agendamento =>
+                agendamentoAdicionar.AgendamentoInicio > agendamento.AgendamentoInicio.AddMinutes(-30) &&
+                agendamentoAdicionar.AgendamentoInicio < agendamento.AgendamentoTermino.AddMinutes(+30) &&
+                agendamentoAdicionar.AgendamentoFornecedor == agendamento.AgendamentoFornecedor
+                ).Count >= 2;
+        }
+
+        private bool ValidarVagaLimite(List<Agendamento> agendamentoLista)
+        {
+            //Tratamento 1f
+            return agendamentoLista.Count > 11;
+        }
+
+        private bool ValidarVagaHorario(Agendamento agendamentoAdicionar)
+        {
+            //Tratamento 1g
+            return (agendamentoAdicionar.AgendamentoInicio.Hour >= 8 && agendamentoAdicionar.AgendamentoInicio.Hour < 12 && agendamentoAdicionar.AgendamentoTermino.Hour > 8 && agendamentoAdicionar.AgendamentoTermino.Hour <= 12) ||
+                (agendamentoAdicionar.AgendamentoInicio.Hour >= 14 && agendamentoAdicionar.AgendamentoInicio.Hour < 18 && agendamentoAdicionar.AgendamentoTermino.Hour > 14 && agendamentoAdicionar.AgendamentoTermino.Hour <= 18);
         }
     }
 }

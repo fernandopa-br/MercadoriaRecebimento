@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi.csproj",
+      "projectUniqueName": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimento\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi.csproj",
       "projectName": "MercadoriaRecebimentoApi",
-      "projectPath": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi.csproj",
+      "projectPath": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimento\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi.csproj",
       "packagesPath": "C:\\Users\\Fernando\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\obj\\",
+      "outputPath": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimento\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Fernando\\AppData\\Roaming\\NuGet\\NuGet.Config",

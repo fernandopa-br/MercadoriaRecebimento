@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uKkBPkEGY2ESN2stSOfRdnJ92aisny/yiECAZcmYRD0/11hygb375yODJkJacv/QmduSB5Z2ei0M3lIc2gzK5w==",
+  "dgSpecHash": "ycKuTjzylzZU0/qQF6PgU/+MidT4dC+APy70eOjViDZAX0RCZa7noWopfzfnHX3rIZQzctqyXAIphVaOVlP5lQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi.csproj",
+  "projectFilePath": "C:\\Users\\Fernando\\source\\repos\\MercadoriaRecebimento\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi\\MercadoriaRecebimentoApi.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
