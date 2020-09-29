@@ -9,7 +9,7 @@ class AgendamentoLista extends React.Component {
     }
   }
 
-  componentDidMount() {
+  carregarDados() {
     const apiUrl = 'https://localhost:44340/api/agendamento';
 
     fetch(apiUrl)
@@ -25,7 +25,12 @@ class AgendamentoLista extends React.Component {
           console.error(error);
         }
       )
-      console.log(this.state.agendamentoLista);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.mensagemFormulario !== this.props.mensagemFormulario) {
+      this.carregarDados();
+    }
   }
 
   render() {
@@ -39,6 +44,7 @@ class AgendamentoLista extends React.Component {
       return(
         <div>
           <h2>Agendamento Lista</h2>
+          <h3>Situacao: {this.props.mensagemFormulario}</h3>
           <table>
             <thead>
               <tr>

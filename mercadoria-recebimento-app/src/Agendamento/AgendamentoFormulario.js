@@ -1,4 +1,5 @@
 import React from 'react';
+import AgendamentoLista from './AgendamentoLista';
 
 class AgendamentoFormulario extends React.Component {
   constructor(props) {
@@ -44,7 +45,6 @@ class AgendamentoFormulario extends React.Component {
         }
       )
     e.preventDefault();
-    window.location.reload(false);
   }
 
   handleChange(e) {
@@ -59,7 +59,7 @@ class AgendamentoFormulario extends React.Component {
 
 
   render() {
-    const { error, agendamentoCarreta, agendamentoFornecedor, agendamentoData, agendamentoInicio, agendamentoTermino, agendamentoVaga, responseMensagem } = this.state;
+    const { error, agendamentoCarreta, agendamentoFornecedor, agendamentoData, agendamentoInicio, agendamentoTermino, agendamentoVaga } = this.state;
     if (error) {
       console.error(error);
       return (
@@ -78,6 +78,7 @@ class AgendamentoFormulario extends React.Component {
                 <th>Inicio</th>
                 <th>Termino</th>
                 <th>Vaga</th>
+                <th>&nbsp;</th>
               </tr>
             </thead>
             <tbody>
@@ -88,13 +89,11 @@ class AgendamentoFormulario extends React.Component {
                 <td><input type="text" name="agendamentoInicio" value={agendamentoInicio} onChange={this.handleChange} /></td>
                 <td><input type="text" name="agendamentoTermino" value={agendamentoTermino} onChange={this.handleChange} /></td>
                 <td><input type="text" name="agendamentoVaga" value={agendamentoVaga} onChange={this.handleChange} /></td>
+                <td><button onClick={this.agendamentoAdicionar}>Adicionar</button></td>
               </tr>
             </tbody>
           </table>
-          <div>
-            <span><button onClick={this.agendamentoAdicionar}>Adicionar</button></span>
-            <span>{responseMensagem}</span>
-          </div>
+          <AgendamentoLista mensagemFormulario={this.state.responseMensagem} />
         </div>
       )
     }
