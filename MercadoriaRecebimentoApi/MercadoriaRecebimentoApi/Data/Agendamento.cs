@@ -11,6 +11,6 @@ namespace MercadoriaRecebimentoApi.Data
         public String AgendamentoFornecedor { get; set; }
         public DateTime AgendamentoInicio { get; set; }
         public DateTime AgendamentoTermino { get; set; }
-        public int AgendamentoVaga { get; set; }
+        public object AgendamentoVaga { get; set; }
     }
 }

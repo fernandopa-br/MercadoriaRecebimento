@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MercadoriaRecebimentoApi.Data;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace MercadoriaRecebimentoApi.Controllers
 {
+    [EnableCors("CorsPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class ConfiguracaoInicialController : ControllerBase

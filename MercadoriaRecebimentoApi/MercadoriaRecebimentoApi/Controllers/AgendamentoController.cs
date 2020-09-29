@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MercadoriaRecebimentoApi.Data;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace MercadoriaRecebimentoApi.Controllers
 {
+    [EnableCors("CorsPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class AgendamentoController : ControllerBase
@@ -25,17 +27,22 @@ namespace MercadoriaRecebimentoApi.Controllers
         [HttpGet]
         public IEnumerable<Agendamento> Get()
         {
-            return _cache.Get<List<Agendamento>>("AgendamentoLista");
+            List<Agendamento> agendamentoLista = _cache.Get<List<Agendamento>>("AgendamentoLista");
+            if (agendamentoLista == null)
+            {
+                agendamentoLista = new List<Agendamento>();
+            }
+            return agendamentoLista;
         }
 
         // POST api/<AgendamentoController>
         [HttpPost]
-        public string Post([FromBody] Agendamento agendamentoAdicionar)
+        public IActionResult Post([FromBody] Agendamento agendamentoAdicionar)
         {
-            return AgendamentoAdicionar(agendamentoAdicionar);
+            return Ok(AgendamentoAdicionar(agendamentoAdicionar));
         }
 
-        private string AgendamentoAdicionar(Agendamento agendamentoAdicionar)
+        private IActionResult AgendamentoAdicionar(Agendamento agendamentoAdicionar)
         {
             string adicionarSituacao = "Falha";
             List<Agendamento> agendamentoLista = _cache.Get<List<Agendamento>>("AgendamentoLista");
@@ -56,7 +63,7 @@ namespace MercadoriaRecebimentoApi.Controllers
                 adicionarSituacao = "Sucesso";
             }
             _cache.Set<List<Agendamento>>("AgendamentoLista", agendamentoLista);
-            return $"Registro {agendamentoAdicionar.AgendamentoCarreta} Adicionado -- {adicionarSituacao} --";
+            return Ok($"Registro {agendamentoAdicionar.AgendamentoCarreta} Adicionado -- {adicionarSituacao} --");
         }
 
         private bool ValidarVagaDisponivel(List<Agendamento> agendamentoLista, Agendamento agendamentoAdicionar)
@@ -74,9 +81,9 @@ namespace MercadoriaRecebimentoApi.Controllers
             return agendamentoLista.FindAll(agendamento =>
                 agendamentoAdicionar.AgendamentoInicio > agendamento.AgendamentoInicio.AddMinutes(-30) &&
                 agendamentoAdicionar.AgendamentoInicio < agendamento.AgendamentoTermino.AddMinutes(+30) &&
-                agendamentoAdicionar.AgendamentoVaga == agendamento.AgendamentoVaga &&
-                agendamentoAdicionar.AgendamentoVaga > 0 &&
-                agendamentoAdicionar.AgendamentoVaga <= 3
+                int.Parse(agendamentoAdicionar.AgendamentoVaga.ToString()) == int.Parse(agendamento.AgendamentoVaga.ToString()) &&
+                int.Parse(agendamentoAdicionar.AgendamentoVaga.ToString()) > 0 &&
+                int.Parse(agendamentoAdicionar.AgendamentoVaga.ToString()) <= 3
                 ).Count > 0;
         }
 
